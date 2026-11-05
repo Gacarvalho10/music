@@ -1,81 +1,161 @@
-<div class="player-container">
-    <!-- Botão customizado -->
-    <button id="playBtn" aria-label="Play/Pause">
-        <svg id="icon" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z"/>
-        </svg>
-    </button>
-
-    <!-- Barra de progresso -->
-    <div class="progress-bar" id="progressBar">
-        <div class="progress" id="progress"></div>
-    </div>
-
-    <!-- Contador de Plays visível na tela -->
-    <div style="font-size: 14px; color: #666; margin-top: 10px;">
-        Reproduções: <span id="playCount">0</span>
-    </div>
-</div>
-
-<audio id="audio" src="https://github.com/Gacarvalho10/music/blob/main/loboguara.mp3" preload="metadata"></audio>
-
-<script>
-    const audio = document.getElementById('audio');
-    const playBtn = document.getElementById('playBtn');
-    const icon = document.getElementById('icon');
-    const progress = document.getElementById('progress');
-    const progressBar = document.getElementById('progressBar');
-    const playCountElement = document.getElementById('playCount');
-
-    const playIcon = '<path d="M8 5v14l11-7z"/>';
-    const pauseIcon = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-
-    let jaContouPlay = false;
-    let totalPlays = 0; // No futuro, isso viria do seu banco de dados
-
-    playBtn.addEventListener('click', () => {
-        if (audio.paused) {
-            audio.play();
-            icon.innerHTML = pauseIcon;
-        } else {
-            audio.pause();
-            icon.innerHTML = playIcon;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Minimalista com Contador</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-    });
 
-    audio.addEventListener('timeupdate', () => {
-        if (audio.duration) {
-            const percentage = (audio.currentTime / audio.duration) * 100;
-            progress.style.width = percentage + '%';
+        .player-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
 
-            // Regra: Se a música passou de 10 segundos tocando, computa 1 play (válido apenas uma vez por player session)
-            if (audio.currentTime > 1 && !jaContouPlay) {
-                jaContouPlay = true;
-                totalPlays++;
-                playCountElement.textContent = totalPlays;
-                
-                // AQUI ENTRARIA O CÓDIGO PARA SALVAR NO BANCO DE DADOS
-                salvarPlayNoServidor();
+        #playBtn {
+            background-color: #111;
+            color: #fff;
+            border: none;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        #playBtn:hover {
+            transform: scale(1.05);
+            background-color: #333;
+        }
+
+        #playBtn:active {
+            transform: scale(0.95);
+        }
+
+        #playBtn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background-color: #eaeaea;
+            border-radius: 2px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: #111;
+            transition: width 0.1s linear;
+        }
+
+        /* Estilo do texto de contagem de plays */
+        .play-counter {
+            font-size: 13px;
+            color: #888;
+            letter-spacing: 0.5px;
+        }
+
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="player-container">
+        <!-- Botão customizado -->
+        <button id="playBtn" aria-label="Play/Pause">
+            <svg id="icon" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+            </svg>
+        </button>
+
+        <!-- Barra de progresso -->
+        <div class="progress-bar" id="progressBar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <!-- O contador que faltava aparecer na tela -->
+        <div class="play-counter">
+            Reproduções: <span id="playCount">0</span>
+        </div>
+    </div>
+
+    <!-- Seu link direto do GitHub na nuvem -->
+    <audio id="audio" src="https://github.com/Gacarvalho10/music/blob/main/loboguara.mp3" preload="metadata"></audio>
+
+    <script>
+        const audio = document.getElementById('audio');
+        const playBtn = document.getElementById('playBtn');
+        const icon = document.getElementById('icon');
+        const progress = document.getElementById('progress');
+        const progressBar = document.getElementById('progressBar');
+        const playCountElement = document.getElementById('playCount');
+
+        const playIcon = '<path d="M8 5v14l11-7z"/>';
+        const pauseIcon = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+
+        let jaContouPlay = false;
+        let totalPlays = 0;
+
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                icon.innerHTML = pauseIcon;
+            } else {
+                audio.pause();
+                icon.innerHTML = playIcon;
             }
-        }
-    });
+        });
 
-    function salvarPlayNoServidor() {
-        console.log("Play contabilizado e enviado para o banco de dados!");
-        // Exemplo: fetch('https://seu-banco.com/api/play', { method: 'POST' });
-    }
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const percentage = (audio.currentTime / audio.duration) * 100;
+                progress.style.width = percentage + '%';
 
-    progressBar.addEventListener('click', (e) => {
-        if (!audio.duration) return;
-        const width = progressBar.clientWidth;
-        const clickX = e.offsetX;
-        const duration = audio.duration;
-        audio.currentTime = (clickX / width) * duration;
-    });
+                // Conta o play assim que passar de 10 segundos ouvindo
+                if (audio.currentTime > 4 && !jaContouPlay) {
+                    jaContouPlay = true;
+                    totalPlays++;
+                    playCountElement.textContent = totalPlays;
+                }
+            }
+        });
 
-    audio.addEventListener('ended', () => {
-        icon.innerHTML = playIcon;
-        progress.style.width = '0%';
-        jaContouPlay = false; // Reseta para permitir contar novamente se a pessoa der replay
-    });
-</script>
+        progressBar.addEventListener('click', (e) => {
+            if (!audio.duration) return;
+            const width = progressBar.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audio.duration;
+            audio.currentTime = (clickX / width) * duration;
+        });
+
+        audio.addEventListener('ended', () => {
+            icon.innerHTML = playIcon;
+            progress.style.width = '0%';
+            jaContouPlay = false; // Permite contar de novo se repetir a música
+        });
+    </script>
+
+</body>
+</html>
