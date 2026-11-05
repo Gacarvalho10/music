@@ -68,7 +68,6 @@
             transition: width 0.1s linear;
         }
 
-        /* Estilo do texto de contagem de plays */
         .play-counter {
             font-size: 13px;
             color: #888;
@@ -83,7 +82,7 @@
 <body>
 
     <div class="player-container">
-        <!-- Botão customizado -->
+        <!-- Botão customizado de Play/Pause -->
         <button id="playBtn" aria-label="Play/Pause">
             <svg id="icon" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z"/>
@@ -95,13 +94,13 @@
             <div class="progress" id="progress"></div>
         </div>
 
-        <!-- O contador que faltava aparecer na tela -->
+        <!-- Contador de reproduções -->
         <div class="play-counter">
             Reproduções: <span id="playCount">0</span>
         </div>
     </div>
 
-    <!-- Seu link direto do GitHub na nuvem -->
+    <!-- COLE O SEU LINK RAW DO GITHUB ABAIXO, ENTRE AS ASPAS -->
     <audio id="audio" src="https://github.com/Gacarvalho10/music/blob/main/loboguara.mp3" preload="metadata"></audio>
 
     <script>
@@ -133,8 +132,7 @@
                 const percentage = (audio.currentTime / audio.duration) * 100;
                 progress.style.width = percentage + '%';
 
-                // Conta o play assim que passar de 10 segundos ouvindo
-                if (audio.currentTime > 4 && !jaContouPlay) {
+                if (audio.currentTime > 10 && !jaContouPlay) {
                     jaContouPlay = true;
                     totalPlays++;
                     playCountElement.textContent = totalPlays;
@@ -153,7 +151,7 @@
         audio.addEventListener('ended', () => {
             icon.innerHTML = playIcon;
             progress.style.width = '0%';
-            jaContouPlay = false; // Permite contar de novo se repetir a música
+            jaContouPlay = false;
         });
     </script>
 
