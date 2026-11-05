@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player Minimalista com Contador</title>
+    <title>Player Minimalista</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             height: 100vh;
@@ -100,7 +104,7 @@
         </div>
     </div>
 
-    <!-- COLE O SEU LINK RAW DO GITHUB ABAIXO, ENTRE AS ASPAS -->
+    <!-- Áudio apontando para o link direto do GitHub -->
     <audio id="audio" src="https://github.com/Gacarvalho10/music/blob/main/loboguara.mp3" preload="metadata"></audio>
 
     <script>
@@ -132,7 +136,7 @@
                 const percentage = (audio.currentTime / audio.duration) * 100;
                 progress.style.width = percentage + '%';
 
-                if (audio.currentTime > 10 && !jaContouPlay) {
+                if (audio.currentTime > 3 && !jaContouPlay) {
                     jaContouPlay = true;
                     totalPlays++;
                     playCountElement.textContent = totalPlays;
