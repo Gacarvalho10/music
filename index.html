@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Minimalista com Áudio na Nuvem</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .player-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #playBtn {
+            background-color: #111;
+            color: #fff;
+            border: none;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        #playBtn:hover {
+            transform: scale(1.05);
+            background-color: #333;
+        }
+
+        #playBtn:active {
+            transform: scale(0.95);
+        }
+
+        #playBtn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background-color: #eaeaea;
+            border-radius: 2px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: #111;
+            transition: width 0.1s linear;
+        }
+
+        /* Esconde o player padrão do HTML */
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="player-container">
+        <!-- Botão customizado -->
+        <button id="playBtn" aria-label="Play/Pause">
+            <svg id="icon" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+            </svg>
+        </button>
+
+        <!-- Barra de progresso -->
+        <div class="progress-bar" id="progressBar">
+            <div class="progress" id="progress"></div>
+        </div>
+    </div>
+
+    <!-- Áudio apontando para o link direto na nuvem -->
+    <audio id="audio" src="https://github.com/Gacarvalho10/music/raw/refs/heads/main/loboguara.mp3" preload="metadata"></audio>
+
+    <script>
+        const audio = document.getElementById('audio');
+        const playBtn = document.getElementById('playBtn');
+        const icon = document.getElementById('icon');
+        const progress = document.getElementById('progress');
+        const progressBar = document.getElementById('progressBar');
+
+        const playIcon = '<path d="M8 5v14l11-7z"/>';
+        const pauseIcon = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+
+        // Tocar ou pausar ao clicar no botão
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                icon.innerHTML = pauseIcon;
+            } else {
+                audio.pause();
+                icon.innerHTML = playIcon;
+            }
+        });
+
+        // Atualizar barra de progresso em tempo real
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const percentage = (audio.currentTime / audio.duration) * 100;
+                progress.style.width = percentage + '%';
+            }
+        });
+
+        // Permitir clicar na barra para avançar/retroceder
+        progressBar.addEventListener('click', (e) => {
+            if (!audio.duration) return;
+            const width = progressBar.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audio.duration;
+            audio.currentTime = (clickX / width) * duration;
+        });
+
+        // Voltar o ícone para "Play" quando a música acabar
+        audio.addEventListener('ended', () => {
+            icon.innerHTML = playIcon;
+            progress.style.width = '0%';
+        });
+    </script>
+
+</body>
+</html>
