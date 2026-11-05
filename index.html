@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player Minimalista</title>
+    <title>Mini Player com Playlist</title>
     <style>
         * {
             box-sizing: border-box;
@@ -23,15 +23,54 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 15px;
+            text-align: center;
+        }
+
+        /* Título da música atual */
+        .song-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 5px;
+        }
+
+        /* Controles (Voltar, Play/Pause, Avançar) */
+        .controls {
+            display: flex;
+            align-items: center;
             gap: 20px;
         }
 
+        .control-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .control-btn:hover {
+            color: #111;
+            transform: scale(1.1);
+        }
+
+        .control-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Botão principal de Play/Pause */
         #playBtn {
             background-color: #111;
             color: #fff;
             border: none;
-            width: 70px;
-            height: 70px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
@@ -46,23 +85,20 @@
             background-color: #333;
         }
 
-        #playBtn:active {
-            transform: scale(0.95);
-        }
-
         #playBtn svg {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             fill: currentColor;
         }
 
         .progress-bar {
-            width: 200px;
+            width: 220px;
             height: 4px;
             background-color: #eaeaea;
             border-radius: 2px;
             cursor: pointer;
             overflow: hidden;
+            margin-top: 5px;
         }
 
         .progress {
@@ -86,12 +122,28 @@
 <body>
 
     <div class="player-container">
-        <!-- Botão customizado de Play/Pause -->
-        <button id="playBtn" aria-label="Play/Pause">
-            <svg id="icon" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-            </svg>
-        </button>
+        <!-- Nome da música -->
+        <div class="song-title" id="songTitle">Carregando...</div>
+
+        <!-- Grupo de controles -->
+        <div class="controls">
+            <!-- Botão Voltar -->
+            <button class="control-btn" id="prevBtn" aria-label="Anterior">
+                <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+            </button>
+
+            <!-- Botão Play/Pause -->
+            <button id="playBtn" aria-label="Play/Pause">
+                <svg id="icon" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            </button>
+
+            <!-- Botão Avançar -->
+            <button class="control-btn" id="nextBtn" aria-label="Próxima">
+                <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+            </button>
+        </div>
 
         <!-- Barra de progresso -->
         <div class="progress-bar" id="progressBar">
@@ -100,27 +152,54 @@
 
         <!-- Contador de reproduções -->
         <div class="play-counter">
-            Reproduções: <span id="playCount">0</span>
+            Reproduções desta faixa: <span id="playCount">0</span>
         </div>
     </div>
 
-    <!-- Áudio apontando para o link direto do GitHub -->
-    <audio id="audio" src="https://raw.githubusercontent.com/Gacarvalho10/music/main/loboguara.mp3" preload="metadata"></audio>
+    <audio id="audio" preload="metadata"></audio>
 
     <script>
+        // Lista com as suas músicas (Adicione mais quantas quiser aqui!)
+        const playlist = [
+            {
+                title: "Loboguara",
+                src: "https://raw.githubusercontent.com/Gacarvalho10/music/main/loboguara.mp3",
+                plays: 0
+            },
+            {
+                title: "Segunda Música Exemplo",
+                src: "https://raw.githubusercontent.com/Gacarvalho10/music/main/guns.mp3", // Troque pelo link Raw da nova música
+                plays: 0
+            }
+        ];
+
+        let currentSongIndex = 0;
+        let jaContouPlay = false;
+
         const audio = document.getElementById('audio');
         const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
         const icon = document.getElementById('icon');
         const progress = document.getElementById('progress');
         const progressBar = document.getElementById('progressBar');
+        const songTitle = document.getElementById('songTitle');
         const playCountElement = document.getElementById('playCount');
 
         const playIcon = '<path d="M8 5v14l11-7z"/>';
         const pauseIcon = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
 
-        let jaContouPlay = false;
-        let totalPlays = 0;
+        // Carrega a música atual
+        function loadSong(index) {
+            const song = playlist[index];
+            songTitle.textContent = song.title;
+            audio.src = song.src;
+            playCountElement.textContent = song.plays;
+            jaContouPlay = false;
+            progress.style.width = '0%';
+        }
 
+        // Tocar ou pausar
         playBtn.addEventListener('click', () => {
             if (audio.paused) {
                 audio.play();
@@ -131,6 +210,23 @@
             }
         });
 
+        // Música Anterior
+        prevBtn.addEventListener('click', () => {
+            currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+            loadSong(currentSongIndex);
+            audio.play();
+            icon.innerHTML = pauseIcon;
+        });
+
+        // Próxima Música
+        nextBtn.addEventListener('click', () => {
+            currentSongIndex = (currentSongIndex + 1) % playlist.length;
+            loadSong(currentSongIndex);
+            audio.play();
+            icon.innerHTML = pauseIcon;
+        });
+
+        // Atualizar barra de progresso e contador de plays
         audio.addEventListener('timeupdate', () => {
             if (audio.duration) {
                 const percentage = (audio.currentTime / audio.duration) * 100;
@@ -138,25 +234,30 @@
 
                 if (audio.currentTime > 3 && !jaContouPlay) {
                     jaContouPlay = true;
-                    totalPlays++;
-                    playCountElement.textContent = totalPlays;
+                    playlist[currentSongIndex].plays++;
+                    playCountElement.textContent = playlist[currentSongIndex].plays;
                 }
             }
         });
 
+        // Clicar na barra para avançar no tempo
         progressBar.addEventListener('click', (e) => {
             if (!audio.duration) return;
             const width = progressBar.clientWidth;
             const clickX = e.offsetX;
-            const duration = audio.duration;
-            audio.currentTime = (clickX / width) * duration;
+            audio.currentTime = (clickX / width) * audio.duration;
         });
 
+        // Quando a música acaba, pula automaticamente para a próxima
         audio.addEventListener('ended', () => {
-            icon.innerHTML = playIcon;
-            progress.style.width = '0%';
-            jaContouPlay = false;
+            currentSongIndex = (currentSongIndex + 1) % playlist.length;
+            loadSong(currentSongIndex);
+            audio.play();
+            icon.innerHTML = pauseIcon;
         });
+
+        // Inicializa o player carregando a primeira música
+        loadSong(currentSongIndex);
     </script>
 
 </body>
